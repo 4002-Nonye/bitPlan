@@ -1,35 +1,59 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useReducer } from "react";
+import "./index.css";
+import Header from "./components/Header";
+import Main from "./components/Main";
+import Form from "./components/Form";
+import ThemeToggle from "./components/ThemeToggle";
+import Tasks from "./components/Tasks";
+import Filter from "./components/Filter";
+import { v4 as uuid } from "uuid";
 
-function App() {
-  const [count, setCount] = useState(0)
 
+
+const initialState = {
+  todos: [],
+  newTask: "",
+};
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "updateTerm":
+      return { ...state, newTask: action.payload };
+
+    case "addTask":
+      const newTaskObj = {
+        task: state.newTask,
+        done: false,
+        id: uuid(),
+      };
+      return {
+        ...state,
+        todos: state.newTask ? [...state.todos, newTaskObj] : state.todos,
+        newTask: "",
+      };
+
+    default:
+      throw new Error("Action unknown");
+  }
+};
+
+const App = () => {
+  const [{ todos, newTask }, dispatch] = useReducer(reducer, initialState);
+  const totalTasks = todos.length;
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+      <Header />
 
-export default App
+      <Main>
+        <ThemeToggle />
+        <Form dispatch={dispatch} newTask={newTask} />
+        <Tasks totalTasks={totalTasks} todos={todos} />
+        <Filter className="xl:hidden flex items-center justify-center mt-4 bg-veryLightGrayLT dark:bg-veryDarkGrayishBlueDT p-4 rounded-sm" />
+        <p className="text-center mt-5 text-darkGrayishBlueDT">
+          Drag and drop to re-order list.
+        </p>
+      </Main>
+    </>
+  );
+};
+
+export default App;
