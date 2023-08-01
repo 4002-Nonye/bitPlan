@@ -1,21 +1,23 @@
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import "./index.css";
 import Header from "./components/Header";
 import Main from "./components/Main";
 import Form from "./components/Form";
 import ThemeToggle from "./components/ThemeToggle";
 import Tasks from "./components/Tasks";
-import Filter from "./components/Filter";
 import { v4 as uuid } from "uuid";
-
 
 
 const initialState = {
   todos: [],
   newTask: "",
+  sortedTodo: [],
+  activeFilter: "allTask",
 };
+
 const reducer = (state, action) => {
   switch (action.type) {
+   
     case "updateTerm":
       return { ...state, newTask: action.payload };
 
@@ -25,10 +27,47 @@ const reducer = (state, action) => {
         done: false,
         id: uuid(),
       };
+      const updatedTodos = [...state.todos, newTaskObj];
       return {
         ...state,
-        todos: state.newTask ? [...state.todos, newTaskObj] : state.todos,
+        todos: state.newTask ? updatedTodos : state.todos,
         newTask: "",
+        sortedTodo: state.newTask ? updatedTodos : state.sortedTodo,
+      };
+
+    case "done":
+      const updatedTask = state.todos.map((todo) =>
+        todo.id === action.payload ? { ...todo, done: !todo.done } : todo
+      );
+      return { ...state, todos: updatedTask, sortedTodo: updatedTask };
+
+    case "deleteTodo":
+      return {
+        ...state,
+        todos: state.todos.filter((todo) => todo.id !== action.payload),
+        sortedTodo: state.todos.filter((todo) => todo.id !== action.payload),
+      };
+    case "clearCompleted":
+      return {
+        ...state,
+        todos: state.todos.filter((todo) => !todo.done),
+        sortedTodo: state.todos.filter((todo) => !todo.done),
+      };
+
+    case "allTasks":
+      return { ...state, sortedTodo: state.todos, activeFilter: "allTask" };
+    case "activeTasks":
+      return {
+        ...state,
+        sortedTodo: state.todos.filter((todo) => !todo.done),
+        activeFilter: "activeTask",
+      };
+
+    case "completedTasks":
+      return {
+        ...state,
+        sortedTodo: state.todos.filter((todo) => todo.done),
+        activeFilter: "completedTask",
       };
 
     default:
@@ -37,8 +76,15 @@ const reducer = (state, action) => {
 };
 
 const App = () => {
-  const [{ todos, newTask }, dispatch] = useReducer(reducer, initialState);
-  const totalTasks = todos.length;
+  const [{ todos, newTask, sortedTodo, activeFilter }, dispatch] = useReducer(
+    reducer,
+    initialState
+  );
+  const totalTasks = sortedTodo.filter((todo) => !todo.done).length;
+
+ 
+
+ 
   return (
     <>
       <Header />
@@ -46,11 +92,12 @@ const App = () => {
       <Main>
         <ThemeToggle />
         <Form dispatch={dispatch} newTask={newTask} />
-        <Tasks totalTasks={totalTasks} todos={todos} />
-        <Filter className="xl:hidden flex items-center justify-center mt-4 bg-veryLightGrayLT dark:bg-veryDarkGrayishBlueDT p-4 rounded-sm" />
-        <p className="text-center mt-5 text-darkGrayishBlueDT">
-          Drag and drop to re-order list.
-        </p>
+        <Tasks
+          totalTasks={totalTasks}
+          todos={sortedTodo}
+          dispatch={dispatch}
+          activeFilter={activeFilter}
+        />
       </Main>
     </>
   );

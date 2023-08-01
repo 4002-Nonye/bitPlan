@@ -1,11 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: "class",
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
-        brightBlue:' hsl(220, 98%, 61%)',
-        
+        brightBlue: " hsl(220, 98%, 61%)",
+
         // LIGHT THEME
         veryLightGrayLT: "hsl(0, 0%, 98%)",
         veryLightGrayishBlueLT: "hsl(236, 33%, 92%)",

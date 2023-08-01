@@ -1,13 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 
-const Filter = ({ className }) => {
+const Filter = ({ dispatch, className, activeFilter }) => {
   return (
     <div className={className}>
-           {" "}
-        <p>All</p>
-        <p className="ml-6">Active</p>
-        <p className="ml-6">Completed</p>
-  
+      {" "}
+      <p
+        className={` ${
+          activeFilter === "allTask" ? "active" : ""
+        } cursor-pointer text-darkGrayishBlueLT `}
+        onClick={() => dispatch({ type: "allTasks" })}
+      >
+        All
+      </p>
+      <p
+        className={`  ${
+          activeFilter === "activeTask" ? "active" : ""
+        } ml-6 cursor-pointer text-darkGrayishBlueLT`}
+        onClick={() => dispatch({ type: "activeTasks" })}
+      >
+        Active
+      </p>
+      <p
+        className={` ${
+          activeFilter === "completedTask" ? "active" : ""
+        } ml-6 cursor-pointer text-darkGrayishBlueLT `}
+        onClick={() =>
+          dispatch({ type: "completedTasks" })
+        }
+      >
+        Completed
+      </p>
     </div>
   );
 };
